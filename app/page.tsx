@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import {
@@ -65,7 +64,6 @@ export default function Home() {
       });
 
       const blob = await res.blob();
-      // ✅ Calculate size in MB
       const sizeInMB = blob.size / (1024 * 1024);
       setFileSizeMB(Number(sizeInMB.toFixed(2)));
 
@@ -97,38 +95,39 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-blue-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 p-4 md:p-8 flex items-center justify-center transition-all-custom">
-      <div className="w-full max-w-6xl glass-card rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[600px]">
+    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-blue-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 p-2 sm:p-4 md:p-6 lg:p-8 flex items-center justify-center transition-all-custom">
+      <div className="w-full max-w-7xl glass-card rounded-xl sm:rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[500px] sm:min-h-[600px] md:min-h-[650px]">
+
         {/* Left Side: Workspace Area */}
-        <div className="flex-1 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-white/20 flex flex-col relative overflow-hidden">
-          <div className="flex items-center justify-between mb-8 relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
-                <ImageIcon className="text-white w-6 h-6" />
+        <div className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-white/20 flex flex-col relative overflow-hidden">
+          <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8 relative z-10">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                <ImageIcon className="text-white w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight text-slate-800 dark:text-white">
                 IMAGER<span className="text-indigo-600">SHARP</span>
               </h1>
             </div>
             {imageSrc && (
               <button
                 onClick={reset}
-                className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 rounded-lg transition-all-custom"
+                className="p-1.5 sm:p-2 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 rounded-lg transition-all-custom"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             )}
           </div>
 
           {!imageSrc ? (
-            <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-indigo-200 dark:border-indigo-800/50 rounded-3xl cursor-pointer hover:bg-white/40 dark:hover:bg-indigo-900/10 transition-all-custom group">
-              <div className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl mb-6 group-hover:scale-110 transition-all-custom">
-                <Upload className="w-10 h-10 text-indigo-600" />
+            <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-indigo-200 dark:border-indigo-800/50 rounded-xl sm:rounded-2xl md:rounded-3xl cursor-pointer hover:bg-white/40 dark:hover:bg-indigo-900/10 transition-all-custom group p-4 sm:p-6 md:p-8">
+              <div className="p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-xl mb-4 sm:mb-6 group-hover:scale-110 transition-all-custom">
+                <Upload className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-indigo-600" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-700 dark:text-slate-200 mb-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-700 dark:text-slate-200 mb-1 sm:mb-2 text-center">
                 Drop your image here
               </h2>
-              <p className="text-slate-500 text-sm">
+              <p className="text-xs sm:text-sm text-slate-500 text-center px-2">
                 Or click to browse from your computer
               </p>
               <input
@@ -139,8 +138,8 @@ export default function Home() {
               />
             </label>
           ) : (
-            <div className="flex-1 flex flex-col gap-6 relative z-10">
-              <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 min-h-[350px]">
+            <div className="flex-1 flex flex-col gap-4 sm:gap-6 relative z-10">
+              <div className="flex-1 relative rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden border border-white/10 min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[350px]">
                 {!processedImage ? (
                   <Cropper
                     image={imageSrc}
@@ -151,48 +150,44 @@ export default function Home() {
                     onZoomChange={setZoom}
                     onCropComplete={onCropComplete}
                     classes={{
-                      containerClassName: "rounded-2xl",
+                      containerClassName: "rounded-lg sm:rounded-xl md:rounded-2xl",
                       cropAreaClassName:
                         "border-2 border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]",
                     }}
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center p-4">
+                  <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 md:p-4">
                     <img
                       src={processedImage}
                       alt="Processed"
-                      className="max-h-full w-auto rounded-xl shadow-2xl ring-1 ring-white/20 animate-in fade-in zoom-in duration-500"
+                      className="max-h-full w-auto rounded-lg sm:rounded-xl shadow-2xl ring-1 ring-white/20 animate-in fade-in zoom-in duration-500"
                     />
                   </div>
                 )}
               </div>
 
-              {/* Status Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-white/40 dark:bg-white/5 rounded-2xl border border-white/20">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Maximize className="w-4 h-4 text-indigo-500" />
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Original Dimensions
+              {/* Status Info - Responsive Grid */}
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                <div className="p-2 sm:p-3 md:p-4 bg-white/40 dark:bg-white/5 rounded-lg sm:rounded-xl md:rounded-2xl border border-white/20">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                    <Maximize className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-500" />
+                    <span className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Original
                     </span>
                   </div>
-                  <p className="text-xl font-bold text-slate-700 dark:text-slate-200">
-                    Auto-detection{" "}
-                    <span className="text-sm font-normal text-slate-400">
-                      active
-                    </span>
+                  <p className="text-sm sm:text-base md:text-xl font-bold text-slate-700 dark:text-slate-200 truncate">
+                    Auto-detect
                   </p>
                 </div>
-                <div className="p-4 bg-indigo-500/5 rounded-2xl border border-indigo-500/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MousePointer2 className="w-4 h-4 text-indigo-500" />
-                    <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+                <div className="p-2 sm:p-3 md:p-4 bg-indigo-500/5 rounded-lg sm:rounded-xl md:rounded-2xl border border-indigo-500/10">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                    <MousePointer2 className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-500" />
+                    <span className="text-[8px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
                       Crop Area
                     </span>
                   </div>
-                  <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {Math.round(croppedAreaPixels?.width || 0)}{" "}
-                    <span className="opacity-50">×</span>{" "}
+                  <p className="text-sm sm:text-base md:text-xl font-bold text-indigo-600 dark:text-indigo-400 truncate">
+                    {Math.round(croppedAreaPixels?.width || 0)} ×{" "}
                     {Math.round(croppedAreaPixels?.height || 0)}
                   </p>
                 </div>
@@ -205,47 +200,46 @@ export default function Home() {
         </div>
 
         {/* Right Side: Configuration Area */}
-        <div className="w-full lg:w-[400px] p-6 md:p-10 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col gap-8 relative overflow-y-auto">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-100 dark:bg-indigo-950 rounded-xl">
-              <Settings className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <div className="w-full lg:w-[380px] xl:w-[400px] p-4 sm:p-6 md:p-8 lg:p-10 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col gap-4 sm:gap-6 md:gap-8 relative overflow-y-auto">
+          <div className="flex items-center gap-2 sm:gap-3 sticky top-0 bg-slate-50/50 dark:bg-slate-900/30 backdrop-blur-sm py-2 z-10">
+            <div className="p-1.5 sm:p-2 md:p-2.5 bg-indigo-100 dark:bg-indigo-950 rounded-lg sm:rounded-xl">
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+            <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
               Configuration
             </h2>
           </div>
 
           {!imageSrc ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-              <div className="w-16 h-16 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                <Info className="w-8 h-8 text-slate-400" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-2 sm:px-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                <Info className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-slate-400" />
               </div>
-              <h3 className="text-slate-700 dark:text-slate-300 font-bold mb-2">
+              <h3 className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-bold mb-1 sm:mb-2">
                 Workspace locked
               </h3>
-              <p className="text-slate-500 text-sm">
-                Upload an image to start configuring your resize and crop
-                settings.
+              <p className="text-xs sm:text-sm text-slate-500 max-w-[250px] sm:max-w-[300px]">
+                Upload an image to start configuring your resize and crop settings.
               </p>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col gap-8">
+            <div className="flex-1 flex flex-col gap-4 sm:gap-6 md:gap-8">
               {/* Zoom Control */}
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-3 md:space-y-4">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
                     Magnification
                   </label>
                   <span className="text-xs font-bold text-indigo-500">
                     {Math.round(zoom * 100)}%
                   </span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
                   <button
                     onClick={() => setZoom(Math.max(1, zoom - 0.1))}
-                    className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all-custom"
+                    className="p-1.5 sm:p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all-custom flex-shrink-0"
                   >
-                    <Minus className="w-4 h-4" />
+                    <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                   <input
                     type="range"
@@ -254,21 +248,21 @@ export default function Home() {
                     step={0.1}
                     value={zoom}
                     onChange={(e) => setZoom(Number(e.target.value))}
-                    className="flex-1 h-1.5 bg-indigo-100 dark:bg-slate-800 rounded-full appearance-none accent-indigo-600 cursor-pointer"
+                    className="flex-1 h-1 sm:h-1.5 bg-indigo-100 dark:bg-slate-800 rounded-full appearance-none accent-indigo-600 cursor-pointer"
                   />
                   <button
                     onClick={() => setZoom(Math.min(3, zoom + 0.1))}
-                    className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all-custom"
+                    className="p-1.5 sm:p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all-custom flex-shrink-0"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
 
               {/* Quality Control */}
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-3 md:space-y-4">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
                     Sharpness & Quality
                   </label>
                   <span className="text-xs font-bold text-emerald-500">
@@ -281,9 +275,9 @@ export default function Home() {
                   max={100}
                   value={quality}
                   onChange={(e) => setQuality(Number(e.target.value))}
-                  className="w-full h-1.5 bg-emerald-100 dark:bg-slate-800 rounded-full appearance-none accent-emerald-500 cursor-pointer"
+                  className="w-full h-1 sm:h-1.5 bg-emerald-100 dark:bg-slate-800 rounded-full appearance-none accent-emerald-500 cursor-pointer"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
+                <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
                   <span>Lite</span>
                   <span>Balanced</span>
                   <span>Crystal</span>
@@ -291,16 +285,16 @@ export default function Home() {
               </div>
 
               {/* Format Selection */}
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+              <div className="space-y-2 sm:space-y-3 md:space-y-4">
+                <label className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
                   Engine Format
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1 sm:gap-2">
                   {["jpeg", "png", "webp"].map((f) => (
                     <button
                       key={f}
                       onClick={() => setFormat(f)}
-                      className={`p-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all-custom border ${
+                      className={`p-2 sm:p-2.5 md:p-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all-custom border ${
                         format === f
                           ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
                           : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-indigo-300"
@@ -313,52 +307,54 @@ export default function Home() {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-auto space-y-4 pt-8">
+              <div className="mt-auto space-y-2 sm:space-y-3 md:space-y-4 pt-4 sm:pt-6 md:pt-8 sticky bottom-0 bg-slate-50/50 dark:bg-slate-900/30 backdrop-blur-sm pb-2">
                 <button
                   onClick={handleProcess}
                   disabled={loading}
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-indigo-600/30 transition-all-custom flex items-center justify-center gap-3 overflow-hidden group"
+                  className="w-full py-3 sm:py-4 md:py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] rounded-xl sm:rounded-2xl shadow-2xl shadow-indigo-600/30 transition-all-custom flex items-center justify-center gap-2 sm:gap-3 overflow-hidden group"
                 >
                   {loading ? (
-                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                   ) : (
                     <>
                       <span>Apply & Process</span>
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-all-custom" />
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-all-custom" />
                     </>
                   )}
                 </button>
 
                 {processedImage && (
-                  <button
-                    onClick={handleDownload}
-                    className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-500/20 transition-all-custom flex items-center justify-center gap-3 animate-in slide-in-from-bottom duration-500"
-                  >
-                    <Download className="w-5 h-5" />
-                    <span>Download Result</span>
-                  </button>
-                )}
-                {fileSizeKB && (
-                  <div className="text-center text-xs text-slate-500 mt-2">
-                    File Size:{" "}
-                    <span className="font-bold text-indigo-600">
-                      {fileSizeKB} KB
-                    </span>
-                  </div>
-                )}
+                  <>
+                    <button
+                      onClick={handleDownload}
+                      className="w-full py-3 sm:py-4 md:py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] rounded-xl sm:rounded-2xl shadow-xl shadow-emerald-500/20 transition-all-custom flex items-center justify-center gap-2 sm:gap-3 animate-in slide-in-from-bottom duration-500"
+                    >
+                      <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span>Download</span>
+                    </button>
+                    
+                    {fileSizeKB && (
+                      <div className="text-center text-xs text-slate-500 mt-1 sm:mt-2">
+                        File Size:{" "}
+                        <span className="font-bold text-indigo-600">
+                          {fileSizeKB} KB
+                        </span>
+                      </div>
+                    )}
 
-                {processedImage && (
-                  <div className="flex items-center gap-2 justify-center text-emerald-500 animate-in fade-in duration-1000">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                      Image processed successfully
-                    </span>
-                  </div>
+                    <div className="flex items-center gap-1 sm:gap-2 justify-center text-emerald-500 animate-in fade-in duration-1000">
+                      <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest">
+                        Processed successfully
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
           )}
         </div>
+
       </div>
     </main>
   );
