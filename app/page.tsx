@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
 import {
   Upload,
@@ -15,6 +15,12 @@ import {
   Plus,
   Minus,
   CheckCircle2,
+  Layers,
+  Sliders,
+  Crop,
+  DownloadCloud,
+  ArrowLeft,
+  Trash2,
 } from "lucide-react";
 
 export default function Home() {
@@ -23,15 +29,28 @@ export default function Home() {
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [aspect, setAspect] = useState(1 / 1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-  const [fileSizeMB, setFileSizeMB] = useState<number | null>(null);
-  const [fileSizeKB, setFileSizeKB] = useState<number | null>(null);
 
   const [quality, setQuality] = useState(80);
   const [format, setFormat] = useState("jpeg");
 
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(100);
+  const [saturation, setSaturation] = useState(100);
+  const [vibrance, setVibrance] = useState(100);
+  const [blur, setBlur] = useState(0);
+
   const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [fileSizeKB, setFileSizeKB] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const presets = [
+    { name: "Instagram Post", value: 1 / 1, icon: "square" },
+    { name: "Instagram Story", value: 9 / 16, icon: "smartphone" },
+    { name: "YouTube Thumb", value: 16 / 9, icon: "tv" },
+    { name: "Facebook Post", value: 1.91 / 1, icon: "facebook" },
+  ];
 
   const onCropComplete = useCallback((_: any, croppedPixels: any) => {
     setCroppedAreaPixels(croppedPixels);
@@ -40,7 +59,6 @@ export default function Home() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
-
     setFile(selected);
     setImageSrc(URL.createObjectURL(selected));
     setProcessedImage(null);
@@ -50,12 +68,16 @@ export default function Home() {
     if (!file || !croppedAreaPixels) return;
 
     setLoading(true);
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("crop", JSON.stringify(croppedAreaPixels));
     formData.append("quality", String(quality));
     formData.append("format", format);
+    formData.append("brightness", String(brightness));
+    formData.append("contrast", String(contrast));
+    formData.append("saturation", String(saturation));
+    formData.append("vibrance", String(vibrance));
+    formData.append("blur", String(blur));
 
     try {
       const res = await fetch("/api/process-image", {
@@ -64,16 +86,11 @@ export default function Home() {
       });
 
       const blob = await res.blob();
-      const sizeInMB = blob.size / (1024 * 1024);
-      setFileSizeMB(Number(sizeInMB.toFixed(2)));
-
       const sizeInKB = blob.size / 1024;
       setFileSizeKB(Number(sizeInKB.toFixed(2)));
-      const url = URL.createObjectURL(blob);
-
-      setProcessedImage(url);
+      setProcessedImage(URL.createObjectURL(blob));
     } catch (error) {
-      console.error("Processing failed:", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -81,7 +98,6 @@ export default function Home() {
 
   const handleDownload = () => {
     if (!processedImage) return;
-
     const link = document.createElement("a");
     link.href = processedImage;
     link.download = `processed-image.${format}`;
@@ -92,269 +108,351 @@ export default function Home() {
     setImageSrc(null);
     setFile(null);
     setProcessedImage(null);
+    setFileSizeKB(null);
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
   };
 
-  return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-blue-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 p-2 sm:p-4 md:p-6 lg:p-8 flex items-center justify-center transition-all-custom">
-      <div className="w-full max-w-7xl glass-card rounded-xl sm:rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[500px] sm:min-h-[600px] md:min-h-[650px]">
-
-        {/* Left Side: Workspace Area */}
-        <div className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-white/20 flex flex-col relative overflow-hidden">
-          <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8 relative z-10">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
-                <ImageIcon className="text-white w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              </div>
-              <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight text-slate-800 dark:text-white">
-                IMAGER<span className="text-indigo-600">SHARP</span>
-              </h1>
-            </div>
-            {imageSrc && (
-              <button
-                onClick={reset}
-                className="p-1.5 sm:p-2 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 rounded-lg transition-all-custom"
-              >
-                <X className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
-            )}
-          </div>
-
-          {!imageSrc ? (
-            <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-indigo-200 dark:border-indigo-800/50 rounded-xl sm:rounded-2xl md:rounded-3xl cursor-pointer hover:bg-white/40 dark:hover:bg-indigo-900/10 transition-all-custom group p-4 sm:p-6 md:p-8">
-              <div className="p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-xl mb-4 sm:mb-6 group-hover:scale-110 transition-all-custom">
-                <Upload className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-indigo-600" />
-              </div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-700 dark:text-slate-200 mb-1 sm:mb-2 text-center">
-                Drop your image here
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 text-center px-2">
-                Or click to browse from your computer
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </label>
-          ) : (
-            <div className="flex-1 flex flex-col gap-4 sm:gap-6 relative z-10">
-              <div className="flex-1 relative rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden border border-white/10 min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[350px]">
-                {!processedImage ? (
-                  <Cropper
-                    image={imageSrc}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={1 / 1}
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={onCropComplete}
-                    classes={{
-                      containerClassName: "rounded-lg sm:rounded-xl md:rounded-2xl",
-                      cropAreaClassName:
-                        "border-2 border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]",
-                    }}
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 md:p-4">
-                    <img
-                      src={processedImage}
-                      alt="Processed"
-                      className="max-h-full w-auto rounded-lg sm:rounded-xl shadow-2xl ring-1 ring-white/20 animate-in fade-in zoom-in duration-500"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Status Info - Responsive Grid */}
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-                <div className="p-2 sm:p-3 md:p-4 bg-white/40 dark:bg-white/5 rounded-lg sm:rounded-xl md:rounded-2xl border border-white/20">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
-                    <Maximize className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-500" />
-                    <span className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Original
-                    </span>
-                  </div>
-                  <p className="text-sm sm:text-base md:text-xl font-bold text-slate-700 dark:text-slate-200 truncate">
-                    Auto-detect
-                  </p>
-                </div>
-                <div className="p-2 sm:p-3 md:p-4 bg-indigo-500/5 rounded-lg sm:rounded-xl md:rounded-2xl border border-indigo-500/10">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
-                    <MousePointer2 className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-500" />
-                    <span className="text-[8px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
-                      Crop Area
-                    </span>
-                  </div>
-                  <p className="text-sm sm:text-base md:text-xl font-bold text-indigo-600 dark:text-indigo-400 truncate">
-                    {Math.round(croppedAreaPixels?.width || 0)} ×{" "}
-                    {Math.round(croppedAreaPixels?.height || 0)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Decorative background element */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-radial-gradient from-indigo-500/5 to-transparent pointer-events-none -z-10" />
+  const Slider = ({
+    label,
+    value,
+    setValue,
+    min = 0,
+    max = 200,
+    icon: Icon,
+  }: any) => (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center text-xs font-semibold tracking-wider uppercase text-slate-500/80">
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="w-3.5 h-3.5" />}
+          {label}
         </div>
+        <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full ring-1 ring-indigo-200/50">
+          {value}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => setValue(Number(e.target.value))}
+        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:accent-indigo-700 transition-all"
+      />
+    </div>
+  );
 
-        {/* Right Side: Configuration Area */}
-        <div className="w-full lg:w-[380px] xl:w-[400px] p-4 sm:p-6 md:p-8 lg:p-10 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col gap-4 sm:gap-6 md:gap-8 relative overflow-y-auto">
-          <div className="flex items-center gap-2 sm:gap-3 sticky top-0 bg-slate-50/50 dark:bg-slate-900/30 backdrop-blur-sm py-2 z-10">
-            <div className="p-1.5 sm:p-2 md:p-2.5 bg-indigo-100 dark:bg-indigo-950 rounded-lg sm:rounded-xl">
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400" />
+  return (
+    <main className="min-h-screen bg-[#f8fafc] dark:bg-[#0b0e11] flex flex-col items-center py-8 px-4 md:px-8 transition-colors duration-500 overflow-x-hidden">
+      {/* Background blobs */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-200/20 blur-[100px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-200/20 blur-[100px] rounded-full animate-pulse delay-1000" />
+      </div>
+
+      <div className="w-full max-w-7xl flex flex-col gap-8">
+        {/* Header */}
+        <header className="flex justify-center  items-center  backdrop-blur-xl  px-6 py-4 rounded-3xl shadow-sm">
+          <div className="flex items-center justify-center flex-col  gap-3">
+            <div className="w-10 h-10 premium-gradient rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <ImageIcon className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              Configuration
-            </h2>
-          </div>
-
-          {!imageSrc ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-2 sm:px-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 sm:mb-6">
-                <Info className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-slate-400" />
-              </div>
-              <h3 className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-bold mb-1 sm:mb-2">
-                Workspace locked
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 max-w-[250px] sm:max-w-[300px]">
-                Upload an image to start configuring your resize and crop settings.
+            <div className="">
+              <h1 className="text-2xl font-bold text-center tracking-tight text-slate-900 dark:text-white">
+                ImageFlow
+              </h1>
+              <p className="text-[10px] text-center font-medium text-slate-400 uppercase tracking-[0.2em] mt-2">
+                Image Resizer & Studio 
               </p>
             </div>
-          ) : (
-            <div className="flex-1 flex flex-col gap-4 sm:gap-6 md:gap-8">
-              {/* Zoom Control */}
-              <div className="space-y-2 sm:space-y-3 md:space-y-4">
-                <div className="flex justify-between items-center">
-                  <label className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-                    Magnification
-                  </label>
-                  <span className="text-xs font-bold text-indigo-500">
-                    {Math.round(zoom * 100)}%
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-                  <button
-                    onClick={() => setZoom(Math.max(1, zoom - 0.1))}
-                    className="p-1.5 sm:p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all-custom flex-shrink-0"
-                  >
-                    <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </button>
-                  <input
-                    type="range"
-                    min={1}
-                    max={3}
-                    step={0.1}
-                    value={zoom}
-                    onChange={(e) => setZoom(Number(e.target.value))}
-                    className="flex-1 h-1 sm:h-1.5 bg-indigo-100 dark:bg-slate-800 rounded-full appearance-none accent-indigo-600 cursor-pointer"
-                  />
-                  <button
-                    onClick={() => setZoom(Math.min(3, zoom + 0.1))}
-                    className="p-1.5 sm:p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all-custom flex-shrink-0"
-                  >
-                    <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </button>
-                </div>
-              </div>
+          </div>
+        </header>
 
-              {/* Quality Control */}
-              <div className="space-y-2 sm:space-y-3 md:space-y-4">
-                <div className="flex justify-between items-center">
-                  <label className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-                    Sharpness & Quality
-                  </label>
-                  <span className="text-xs font-bold text-emerald-500">
-                    {quality}%
-                  </span>
-                </div>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Main Workspace */}
+          <div className="flex-1 w-full flex flex-col gap-6">
+            {!imageSrc ? (
+              <div className="group relative flex-1 min-h-[500px] flex flex-col items-center justify-center bg-white/40 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-[2.5rem] hover:border-indigo-400  transition-all-custom cursor-pointer overflow-hidden">
                 <input
-                  type="range"
-                  min={10}
-                  max={100}
-                  value={quality}
-                  onChange={(e) => setQuality(Number(e.target.value))}
-                  className="w-full h-1 sm:h-1.5 bg-emerald-100 dark:bg-slate-800 rounded-full appearance-none accent-emerald-500 cursor-pointer"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
-                <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                  <span>Lite</span>
-                  <span>Balanced</span>
-                  <span>Crystal</span>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-indigo-50/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="relative z-0 flex flex-col items-center text-center px-8">
+                  <div className="w-20 h-20 mb-6  dark:bg-indigo-500/10 rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                    <Upload className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+                    Drop your vision here
+                  </h3>
+                  <p className="text-slate-500  text-sm max-w-sm">
+                    Drag and drop your image, or click to browse. Supports JPG,
+                    PNG, and WebP.
+                  </p>
                 </div>
               </div>
-
-              {/* Format Selection */}
-              <div className="space-y-2 sm:space-y-3 md:space-y-4">
-                <label className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-                  Engine Format
-                </label>
-                <div className="grid grid-cols-3 gap-1 sm:gap-2">
-                  {["jpeg", "png", "webp"].map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setFormat(f)}
-                      className={`p-2 sm:p-2.5 md:p-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all-custom border ${
-                        format === f
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
-                          : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-indigo-300"
-                      }`}
-                    >
-                      {f}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-auto space-y-2 sm:space-y-3 md:space-y-4 pt-4 sm:pt-6 md:pt-8 sticky bottom-0 bg-slate-50/50 dark:bg-slate-900/30 backdrop-blur-sm pb-2">
-                <button
-                  onClick={handleProcess}
-                  disabled={loading}
-                  className="w-full py-3 sm:py-4 md:py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] rounded-xl sm:rounded-2xl shadow-2xl shadow-indigo-600/30 transition-all-custom flex items-center justify-center gap-2 sm:gap-3 overflow-hidden group"
-                >
-                  {loading ? (
-                    <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div className="relative w-full aspect-video md:aspect-[4/3] lg:aspect-square max-h-[600px] bg-slate-100 dark:bg-slate-900/50 rounded-[2rem] overflow-hidden border border-slate-200/60 dark:border-white/5 shadow-2xl">
+                  {!processedImage ? (
+                    <Cropper
+                      image={imageSrc}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={aspect}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                      style={{
+                        mediaStyle: {
+                          filter: `
+                            brightness(${brightness}%)
+                            contrast(${contrast}%)
+                            saturate(${saturation}%)
+                            blur(${blur}px)
+                          `,
+                        },
+                      }}
+                    />
                   ) : (
-                    <>
-                      <span>Apply & Process</span>
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-all-custom" />
-                    </>
+                    <div className="w-full h-full flex items-center justify-center p-8">
+                      <img
+                        src={processedImage}
+                        alt="Processed"
+                        style={{
+                          filter: `
+                            brightness(${brightness}%)
+                            contrast(${contrast}%)
+                            saturate(${saturation}%)
+                            blur(${blur}px)
+                          `,
+                        }}
+                        className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+                      />
+                    </div>
                   )}
-                </button>
 
-                {processedImage && (
-                  <>
+                  {/* Overlay Controls */}
+                  <div className="absolute top-6 left-6 flex flex-col gap-2">
                     <button
-                      onClick={handleDownload}
-                      className="w-full py-3 sm:py-4 md:py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] rounded-xl sm:rounded-2xl shadow-xl shadow-emerald-500/20 transition-all-custom flex items-center justify-center gap-2 sm:gap-3 animate-in slide-in-from-bottom duration-500"
+                      onClick={reset}
+                      className="p-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 text-slate-600 hover:text-red-500 transition-all active:scale-95"
                     >
-                      <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span>Download</span>
+                      <ArrowLeft className="w-5 h-5" />
                     </button>
-                    
+                  </div>
+
+                  {processedImage && (
+                    <div className="absolute bottom-6 right-6 flex items-center gap-3">
+                      <div className="bg-emerald-500/90 backdrop-blur-md text-white px-4 py-2 rounded-2xl flex items-center gap-2 shadow-lg border border-emerald-400/20 font-semibold text-sm">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Ready for download
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl">
+                  <div className="flex gap-6">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest leading-none mb-1">
+                        Dimensions
+                      </span>
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                        {Math.round(croppedAreaPixels?.width || 0)} ×{" "}
+                        {Math.round(croppedAreaPixels?.height || 0)} px
+                      </span>
+                    </div>
                     {fileSizeKB && (
-                      <div className="text-center text-xs text-slate-500 mt-1 sm:mt-2">
-                        File Size:{" "}
-                        <span className="font-bold text-indigo-600">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest leading-none mb-1">
+                          Size
+                        </span>
+                        <span className="text-sm font-bold text-indigo-600">
                           {fileSizeKB} KB
                         </span>
                       </div>
                     )}
-
-                    <div className="flex items-center gap-1 sm:gap-2 justify-center text-emerald-500 animate-in fade-in duration-1000">
-                      <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest">
-                        Processed successfully
-                      </span>
-                    </div>
-                  </>
-                )}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                    <Info className="w-3 h-3" />
+                    DRAG TO PAN • SCROLL TO ZOOM
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
+          {/* Controls Sidebar */}
+          <aside className="w-full lg:w-[400px] flex flex-col gap-6 sticky top-24">
+            <div className="glass-card p-6 md:p-8 rounded-[2rem] flex flex-col gap-8">
+              {imageSrc ? (
+                <>
+                  {/* Presets Grid */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Layers className="w-4 h-4" />
+                      <h3 className="text-xs font-bold uppercase tracking-widest">
+                        Canvas Ratio
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {presets.map((p) => (
+                        <button
+                          key={p.name}
+                          onClick={() => setAspect(p.value)}
+                          className={`p-3 rounded-2xl text-[11px] font-bold border transition-all-custom flex flex-col items-center gap-2 ${
+                            aspect === p.value
+                              ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200/50"
+                              : "bg-slate-50 border-slate-100 text-slate-600 hover:border-indigo-200 hover:bg-white"
+                          }`}
+                        >
+                          <span className="text-xs">{p.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tuning Section */}
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Sliders className="w-4 h-4" />
+                      <h3 className="text-xs font-bold uppercase tracking-widest">
+                        Fine Tuning
+                      </h3>
+                    </div>
+
+                    <div className="space-y-6">
+                      <Slider
+                        label="Canvas Zoom"
+                        value={zoom}
+                        setValue={setZoom}
+                        min={1}
+                        max={3}
+                        icon={Maximize}
+                      />
+                      <Slider
+                        label="Export Quality"
+                        value={quality}
+                        setValue={setQuality}
+                        min={10}
+                        max={100}
+                        icon={CheckCircle2}
+                      />
+
+                      <div className="h-px bg-slate-200/60 dark:bg-white/5 my-4" />
+
+                      <Slider
+                        label="Brightness"
+                        value={brightness}
+                        setValue={setBrightness}
+                        icon={Plus}
+                      />
+                      <Slider
+                        label="Contrast"
+                        value={contrast}
+                        setValue={setContrast}
+                        icon={RefreshCw}
+                      />
+                      <Slider
+                        label="Saturation"
+                        value={saturation}
+                        setValue={setSaturation}
+                        icon={Layers}
+                      />
+                      <Slider
+                        label="Blur Effect"
+                        value={blur}
+                        setValue={setBlur}
+                        max={20}
+                        icon={Info}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Format Selection */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Settings className="w-4 h-4" />
+                      <h3 className="text-xs font-bold uppercase tracking-widest">
+                        Export Format
+                      </h3>
+                    </div>
+                    <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-2xl gap-1">
+                      {["jpeg", "png", "webp"].map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => setFormat(f)}
+                          className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all-custom ${
+                            format === f
+                              ? "bg-white dark:bg-slate-800 text-indigo-600 shadow-sm"
+                              : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                          }`}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Core Actions */}
+                  <div className="space-y-3 pt-4 border-t border-slate-200/60 dark:border-white/5">
+                    <button
+                      onClick={handleProcess}
+                      disabled={loading || !imageSrc}
+                      className="w-full premium-gradient text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-indigo-500/20 active:scale-[0.98] disabled:opacity-50 transition-all"
+                    >
+                      {loading ? (
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Crop className="w-5 h-5" />
+                      )}
+                      {loading ? "Optimizing..." : "Apply & Render"}
+                    </button>
+
+                    {processedImage && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={handleDownload}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 active:scale-95 transition-all"
+                        >
+                          <DownloadCloud className="w-5 h-5" />
+                          Save
+                        </button>
+                        <button
+                          onClick={reset}
+                          className="bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                          Discard
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center">
+                    <Sliders className="w-6 h-6 text-slate-300" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-slate-700 dark:text-slate-200">
+                      Controls Locked
+                    </h4>
+                    <p className="text-xs text-slate-500 max-w-[200px] mx-auto">
+                      Upload an image to start refining your vision.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+           
+          </aside>
+        </div>
       </div>
     </main>
   );
