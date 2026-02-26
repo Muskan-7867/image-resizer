@@ -150,10 +150,10 @@ export default function Home() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-200/20 blur-[100px] rounded-full animate-pulse delay-1000" />
       </div>
 
-      <div className="w-full max-w-7xl flex flex-col gap-8">
+      <div className="w-full max-w-7xl flex flex-col gap-6">
         {/* Header */}
-        <header className="flex justify-center  items-center  backdrop-blur-xl  px-6 py-4 rounded-3xl shadow-sm">
-          <div className="flex items-center justify-center flex-col  gap-3">
+        <header className="flex justify-center  items-center  backdrop-blur-xl  px-6  rounded-3xl shadow-sm">
+          <div className="flex items-center justify-center flex-col  gap-2">
             <div className="w-10 h-10 premium-gradient rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <ImageIcon className="w-6 h-6 text-white" />
             </div>
@@ -161,8 +161,8 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-center tracking-tight text-slate-900 dark:text-white">
                 ImageFlow
               </h1>
-              <p className="text-[10px] text-center font-medium text-slate-400 uppercase tracking-[0.2em] mt-2">
-                Image Resizer & Studio 
+              <p className="text-[10px] text-center font-medium text-slate-400 uppercase tracking-[0.2em] mt-1">
+                Image Resizer & Studio
               </p>
             </div>
           </div>
@@ -287,8 +287,8 @@ export default function Home() {
           </div>
 
           {/* Controls Sidebar */}
-          <aside className="w-full lg:w-[400px] flex flex-col gap-6 sticky top-24">
-            <div className="glass-card p-6 md:p-8 rounded-[2rem] flex flex-col gap-8">
+          <aside className="w-full lg:w-[400px] flex flex-col gap-6 sticky top-12">
+            <div className="glass-card p-4 rounded-[2rem] flex flex-col gap-8">
               {imageSrc ? (
                 <>
                   {/* Presets Grid */}
@@ -304,7 +304,7 @@ export default function Home() {
                         <button
                           key={p.name}
                           onClick={() => setAspect(p.value)}
-                          className={`p-3 rounded-2xl text-[11px] font-bold border transition-all-custom flex flex-col items-center gap-2 ${
+                          className={`p-2 rounded-2xl text-[11px] font-bold border transition-all-custom flex flex-col items-center gap-2 ${
                             aspect === p.value
                               ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200/50"
                               : "bg-slate-50 border-slate-100 text-slate-600 hover:border-indigo-200 hover:bg-white"
@@ -317,64 +317,56 @@ export default function Home() {
                   </div>
 
                   {/* Tuning Section */}
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <Sliders className="w-4 h-4" />
-                      <h3 className="text-xs font-bold uppercase tracking-widest">
-                        Fine Tuning
-                      </h3>
-                    </div>
 
-                    <div className="space-y-6">
-                      <Slider
-                        label="Canvas Zoom"
-                        value={zoom}
-                        setValue={setZoom}
-                        min={1}
-                        max={3}
-                        icon={Maximize}
-                      />
-                      <Slider
-                        label="Export Quality"
-                        value={quality}
-                        setValue={setQuality}
-                        min={10}
-                        max={100}
-                        icon={CheckCircle2}
-                      />
+                  <div className="space-y-4">
+                    <Slider
+                      label="Canvas Zoom"
+                      value={zoom}
+                      setValue={setZoom}
+                      min={1}
+                      max={3}
+                      icon={Maximize}
+                    />
+                    <Slider
+                      label="Export Quality"
+                      value={quality}
+                      setValue={setQuality}
+                      min={10}
+                      max={100}
+                      icon={CheckCircle2}
+                    />
 
-                      <div className="h-px bg-slate-200/60 dark:bg-white/5 my-4" />
+                    <div className="h-px bg-slate-200/60 dark:bg-white/5 my-2" />
 
-                      <Slider
-                        label="Brightness"
-                        value={brightness}
-                        setValue={setBrightness}
-                        icon={Plus}
-                      />
-                      <Slider
-                        label="Contrast"
-                        value={contrast}
-                        setValue={setContrast}
-                        icon={RefreshCw}
-                      />
-                      <Slider
-                        label="Saturation"
-                        value={saturation}
-                        setValue={setSaturation}
-                        icon={Layers}
-                      />
-                      <Slider
-                        label="Blur Effect"
-                        value={blur}
-                        setValue={setBlur}
-                        max={20}
-                        icon={Info}
-                      />
-                    </div>
+                    <Slider
+                      label="Brightness"
+                      value={brightness}
+                      setValue={setBrightness}
+                      icon={Plus}
+                    />
+                    <Slider
+                      label="Contrast"
+                      value={contrast}
+                      setValue={setContrast}
+                      icon={RefreshCw}
+                    />
+                    <Slider
+                      label="Saturation"
+                      value={saturation}
+                      setValue={setSaturation}
+                      icon={Layers}
+                    />
+                    <Slider
+                      label="Blur Effect"
+                      value={blur}
+                      setValue={setBlur}
+                      max={20}
+                      icon={Info}
+                    />
                   </div>
 
                   {/* Format Selection */}
-                  <div className="space-y-4">
+                  <div className="">
                     <div className="flex items-center gap-2 text-slate-400">
                       <Settings className="w-4 h-4" />
                       <h3 className="text-xs font-bold uppercase tracking-widest">
@@ -399,7 +391,7 @@ export default function Home() {
                   </div>
 
                   {/* Core Actions */}
-                  <div className="space-y-3 pt-4 border-t border-slate-200/60 dark:border-white/5">
+                  <div className="space-y-1 border-t border-slate-200/60 dark:border-white/5">
                     <button
                       onClick={handleProcess}
                       disabled={loading || !imageSrc}
@@ -449,8 +441,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-
-           
           </aside>
         </div>
       </div>
